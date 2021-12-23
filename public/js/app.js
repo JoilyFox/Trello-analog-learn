@@ -5481,51 +5481,240 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['deskId'],
   data: function data() {
     return {
       name: null,
+      desk_list_name: null,
       errored: false,
-      loading: true
+      loading: true,
+      desk_lists: true,
+      createDeskListForm: false,
+      errors: [],
+      changeDeskNameForm: false,
+      desk_list_input_id: null
     };
   },
   methods: {
-    saveName: function saveName() {
+    updateDesklist: function updateDesklist(id, name) {
       var _this = this;
 
-      this.$v.$touch();
-
-      if (this.$v.$anyError) {
-        return;
-      }
-
-      axios.post('/api/v1/desks/' + this.deskId, {
+      console.log(id + ', ' + name);
+      axios.post('/api/v1/desk-lists/' + id, {
         _method: 'PUT',
-        name: this.name
-      }).then(function (response) {})["catch"](function (error) {
+        name: name
+      }).then(function (response) {
+        _this.desk_list_input_id = null;
+      })["catch"](function (error) {
         console.log(error);
         _this.errored = true;
       })["finally"](function () {
         _this.loading = false;
       });
+    },
+    getDeskLists: function getDeskLists() {
+      var _this2 = this;
+
+      axios.get('/api/v1/desk-lists', {
+        params: {
+          desk_id: this.deskId
+        }
+      }).then(function (response) {
+        console.log();
+        _this2.desk_lists = response.data.data;
+      })["catch"](function (error) {
+        console.log(error);
+        _this2.errored = true;
+      })["finally"](function () {
+        _this2.loading = false;
+      });
+    },
+    saveName: function saveName() {
+      var _this3 = this;
+
+      axios.post('/api/v1/desks/' + this.deskId, {
+        _method: 'PUT',
+        name: this.name
+      }).then(function (response) {
+        _this3.changeDeskNameForm = false;
+      })["catch"](function (error) {
+        console.log(error);
+        _this3.errored = true;
+      })["finally"](function () {
+        _this3.loading = false;
+      });
+    },
+    addNewDeskList: function addNewDeskList() {
+      var _this4 = this;
+
+      axios.post('/api/v1/desk-lists', {
+        name: this.desk_list_name,
+        desk_id: this.deskId
+      }).then(function (response) {
+        _this4.createDeskListForm = false;
+        _this4.desk_list_name = '';
+        _this4.desk_lists = [];
+
+        _this4.getDeskLists();
+      })["catch"](function (error) {
+        console.log(error.response);
+        _this4.errored = true;
+      })["finally"](function () {
+        _this4.loading = false;
+      });
+    },
+    deleteDeskList: function deleteDeskList(id) {
+      var _this5 = this;
+
+      if (confirm('Are you sure you want to delete the desk?')) {
+        axios.post('/api/v1/desk-lists/' + id, {
+          _method: 'DELETE'
+        }).then(function (response) {
+          _this5.desk_lists = [];
+
+          _this5.getDeskLists();
+        })["catch"](function (error) {
+          console.log(error);
+          _this5.errored = true;
+        })["finally"](function () {
+          _this5.loading = false;
+        });
+      }
     }
   },
   mounted: function mounted() {
-    var _this2 = this;
+    var _this6 = this;
 
     axios.get('/api/v1/desks/' + this.deskId).then(function (response) {
-      _this2.name = response.data.data.name;
+      _this6.name = response.data.data.name;
     })["catch"](function (error) {
       console.log(error);
-      _this2.errored = true;
+      _this6.errored = true;
     })["finally"](function () {
-      _this2.loading = false;
+      _this6.loading = false;
     });
+    this.getDeskLists();
   },
   validations: {
     name: {
+      required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.required,
+      maxLength: (0,vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.maxLength)(255)
+    },
+    desk_list_name: {
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.required,
       maxLength: (0,vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.maxLength)(255)
     }
@@ -28640,40 +28829,21 @@ var render = function () {
                 ]
               ),
               _vm._v(" "),
-              _c(
-                "button",
-                {
-                  staticClass: "btn btn-danger delete-desk-icon",
-                  attrs: { type: "button" },
-                  on: {
-                    click: function ($event) {
-                      return _vm.deleteDesk(desk.id)
-                    },
-                  },
-                },
-                [
-                  _c(
-                    "svg",
-                    {
-                      staticClass: "bi bi-trash-fill",
-                      attrs: {
-                        xmlns: "http://www.w3.org/2000/svg",
-                        width: "16",
-                        height: "16",
-                        fill: "currentColor",
-                        viewBox: "0 0 16 16",
+              _c("div", { staticClass: "desk-list-btns" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger desk-icon",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function ($event) {
+                        return _vm.deleteDesk(desk.id)
                       },
                     },
-                    [
-                      _c("path", {
-                        attrs: {
-                          d: "M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z",
-                        },
-                      }),
-                    ]
-                  ),
-                ]
-              ),
+                  },
+                  [_c("i", { staticClass: "fas fa-trash" })]
+                ),
+              ]),
             ],
             1
           ),
@@ -28716,50 +28886,459 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
-    _c("div", { staticClass: "form-group" }, [
-      _c("input", {
-        directives: [
+    _vm.errored
+      ? _c(
+          "div",
+          { staticClass: "alert alert-danger", attrs: { role: "alert" } },
+          [
+            _vm._v("\n            Data loading error! "),
+            _c("br"),
+            _vm._v("\n            " + _vm._s(_vm.errors[0]) + "\n        "),
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _c("h1", [_vm._v(_vm._s(_vm.name))]),
+    _vm._v(" "),
+    !_vm.createDeskListForm
+      ? _c(
+          "button",
           {
-            name: "model",
-            rawName: "v-model",
-            value: _vm.name,
-            expression: "name",
+            staticClass: "btn btn-primary mb-2",
+            attrs: { type: "button" },
+            on: {
+              click: function ($event) {
+                _vm.createDeskListForm = true
+              },
+            },
           },
-        ],
-        staticClass: "form-control mt-2",
-        class: { "is-invalid": _vm.$v.name.$error },
-        attrs: { type: "text" },
-        domProps: { value: _vm.name },
-        on: {
-          blur: _vm.saveName,
-          input: function ($event) {
-            if ($event.target.composing) {
-              return
-            }
-            _vm.name = $event.target.value
-          },
-        },
-      }),
-      _vm._v(" "),
-      !_vm.$v.name.required
-        ? _c("div", { staticClass: "invalid-feedback" }, [
-            _vm._v("\n            Obligatory field!\n        "),
-          ])
-        : _vm._e(),
-      _vm._v(" "),
-      !_vm.$v.name.maxLength
-        ? _c("div", { staticClass: "invalid-feedback" }, [
-            _vm._v(
-              "\n            Max number of characters is " +
-                _vm._s(_vm.$v.name.$params.maxLength.max) +
-                "!\n        "
+          [
+            _c(
+              "svg",
+              {
+                staticClass: "bi bi-plus-lg",
+                attrs: {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  fill: "currentColor",
+                  viewBox: "0 0 16 16",
+                },
+              },
+              [
+                _c("path", {
+                  attrs: {
+                    "fill-rule": "evenodd",
+                    d: "M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z",
+                  },
+                }),
+              ]
             ),
-          ])
-        : _vm._e(),
-    ]),
+            _vm._v("\n            Create new desk\n        "),
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    !_vm.changeDeskNameForm
+      ? _c(
+          "button",
+          {
+            staticClass: "btn btn-primary mb-2",
+            attrs: { type: "button" },
+            on: {
+              click: function ($event) {
+                _vm.changeDeskNameForm = true
+              },
+            },
+          },
+          [
+            _c(
+              "svg",
+              {
+                staticClass: "bi bi-pencil-fill",
+                attrs: {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  fill: "currentColor",
+                  viewBox: "0 0 16 16",
+                },
+              },
+              [
+                _c("path", {
+                  attrs: {
+                    d: "M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z",
+                  },
+                }),
+              ]
+            ),
+            _vm._v("\n            Change desk name\n        "),
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.changeDeskNameForm
+      ? _c(
+          "form",
+          {
+            on: {
+              submit: function ($event) {
+                $event.preventDefault()
+                return _vm.saveName.apply(null, arguments)
+              },
+            },
+          },
+          [
+            _c("div", { staticClass: "form-row row" }, [
+              _c("div", { staticClass: "col-md-12" }, [
+                _c("label", { attrs: { for: "validationServer03" } }, [
+                  _vm._v("Change desk name"),
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c("div", { staticClass: "col-md-6 mb-2" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.name,
+                          expression: "name",
+                        },
+                      ],
+                      staticClass: "form-control",
+                      class: { "is-invalid": _vm.$v.name.$error },
+                      attrs: { type: "text" },
+                      domProps: { value: _vm.name },
+                      on: {
+                        input: function ($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.name = $event.target.value
+                        },
+                      },
+                    }),
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-3 mb-3 pl-0" }, [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary mr-8",
+                        attrs: { type: "submit" },
+                      },
+                      [_vm._v("Change desk name")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger",
+                        on: {
+                          click: function ($event) {
+                            _vm.changeDeskNameForm = false
+                          },
+                        },
+                      },
+                      [_vm._v("Cancel")]
+                    ),
+                  ]),
+                ]),
+                _vm._v(" "),
+                !_vm.$v.name.required
+                  ? _c("div", { staticClass: "invalid-feedback" }, [
+                      _vm._v(
+                        "\n                        Obligatory field!\n                    "
+                      ),
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                !_vm.$v.name.maxLength
+                  ? _c("div", { staticClass: "invalid-feedback" }, [
+                      _vm._v(
+                        "\n                        Max number of characters is " +
+                          _vm._s(_vm.$v.name.$params.maxLength.max) +
+                          "!\n                    "
+                      ),
+                    ])
+                  : _vm._e(),
+              ]),
+            ]),
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.createDeskListForm
+      ? _c(
+          "form",
+          {
+            on: {
+              submit: function ($event) {
+                $event.preventDefault()
+                return _vm.addNewDeskList.apply(null, arguments)
+              },
+            },
+          },
+          [
+            _c("div", { staticClass: "form-row row" }, [
+              _c("div", { staticClass: "col-md-12" }, [
+                _c("label", { attrs: { for: "validationServer03" } }, [
+                  _vm._v("Name"),
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c("div", { staticClass: "col-md-6 mb-2" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.desk_list_name,
+                          expression: "desk_list_name",
+                        },
+                      ],
+                      staticClass: "form-control",
+                      class: { "is-invalid": _vm.$v.desk_list_name.$error },
+                      attrs: { type: "text", id: "validationServer03" },
+                      domProps: { value: _vm.desk_list_name },
+                      on: {
+                        input: function ($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.desk_list_name = $event.target.value
+                        },
+                      },
+                    }),
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-3 mb-3 pl-0" }, [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary mr-8",
+                        attrs: { type: "submit" },
+                      },
+                      [_vm._v("Create new desk")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger",
+                        on: {
+                          click: function ($event) {
+                            _vm.createDeskListForm = false
+                          },
+                        },
+                      },
+                      [_vm._v("Cancel")]
+                    ),
+                  ]),
+                  _vm._v(" "),
+                  !_vm.$v.desk_list_name.required
+                    ? _c("div", { staticClass: "invalid-feedback" }, [
+                        _vm._v(
+                          "\n                            Obligatory field!\n                        "
+                        ),
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  !_vm.$v.desk_list_name.maxLength
+                    ? _c("div", { staticClass: "invalid-feedback" }, [
+                        _vm._v(
+                          "\n                            Max number of characters is " +
+                            _vm._s(
+                              _vm.$v.desk_list_name.$params.maxLength.max
+                            ) +
+                            "!\n                        "
+                        ),
+                      ])
+                    : _vm._e(),
+                ]),
+              ]),
+            ]),
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.loading
+      ? _c("div", { staticClass: "text-center" }, [
+          _c("div", {
+            staticClass: "spinner-grow text-primary",
+            attrs: { role: "status" },
+          }),
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "row" },
+      _vm._l(_vm.desk_lists, function (desk_list) {
+        return _c("div", { staticClass: "col-lg-4" }, [
+          _c("div", { staticClass: "card mt-3" }, [
+            _c("div", { staticClass: "card-body" }, [
+              _c("h4", { staticClass: "card-title" }, [
+                _vm._v(_vm._s(desk_list.name)),
+              ]),
+              _vm._v(" "),
+              _vm.desk_list_input_id == desk_list.id
+                ? _c(
+                    "form",
+                    {
+                      on: {
+                        submit: function ($event) {
+                          $event.preventDefault()
+                          return _vm.updateDesklist(
+                            desk_list.id,
+                            desk_list.name
+                          )
+                        },
+                      },
+                    },
+                    [
+                      _c("div", { staticClass: "desk-list-edit-form" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: desk_list.name,
+                              expression: "desk_list.name",
+                            },
+                          ],
+                          staticClass: "form-control mt-3",
+                          attrs: { type: "text" },
+                          domProps: { value: desk_list.name },
+                          on: {
+                            input: function ($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(desk_list, "name", $event.target.value)
+                            },
+                          },
+                        }),
+                        _vm._v(" "),
+                        _vm._m(0, true),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-danger",
+                            attrs: { type: "button" },
+                            on: {
+                              click: function ($event) {
+                                _vm.desk_list_input_id = null
+                              },
+                            },
+                          },
+                          [_c("i", { staticClass: "fas fa-times-circle" })]
+                        ),
+                      ]),
+                    ]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", { staticClass: "desk-list-btns" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary desk-icon",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function ($event) {
+                        _vm.desk_list_input_id = desk_list.id
+                      },
+                    },
+                  },
+                  [_c("i", { staticClass: "fas fa-pen" })]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger desk-icon",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function ($event) {
+                        return _vm.deleteDeskList(desk_list.id)
+                      },
+                    },
+                  },
+                  [_c("i", { staticClass: "fas fa-trash" })]
+                ),
+              ]),
+              _vm._v(" "),
+              _vm._m(1, true),
+              _vm._v(" "),
+              _vm._m(2, true),
+            ]),
+          ]),
+        ])
+      }),
+      0
+    ),
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+      [_c("i", { staticClass: "fas fa-pen" })]
+    )
+  },
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card mt-3 bg-light" }, [
+      _c("div", { staticClass: "card-body" }, [
+        _c("h4", { staticClass: "card-title" }, [_vm._v("fff")]),
+        _vm._v(" "),
+        _c("div", { staticClass: "desk-list-btns" }, [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-secondary desk-icon",
+              attrs: { type: "button" },
+            },
+            [_c("i", { staticClass: "fas fa-pen" })]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-danger desk-icon",
+              attrs: { type: "button" },
+            },
+            [_c("i", { staticClass: "fas fa-trash" })]
+          ),
+        ]),
+      ]),
+    ])
+  },
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "form",
+      { staticClass: "d-flex justify-content-between align-items-center mt-3" },
+      [
+        _c("input", {
+          staticClass: "form-control",
+          attrs: { type: "text", placeholder: "Enter card name" },
+        }),
+      ]
+    )
+  },
+]
 render._withStripped = true
 
 
