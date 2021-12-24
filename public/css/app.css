@@ -11356,3 +11356,16 @@ h4.card-title, .card-title.h4 {
 .btn-add-cart p {
   margin: 0 5px;
 }
+
+.edit-card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  margin-left: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.edit-card-btn:hover {
+  opacity: 0.5;
+}

@@ -39,3 +39,8 @@ const app = new Vue({
     components: {App},
     router
 });
+
+$('#mmdbtn').click(function(e){
+    e.preventDefault();
+    $('#mmd').fadeIn();
+});

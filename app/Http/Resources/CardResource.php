@@ -19,6 +19,6 @@ class CardResource extends JsonResource
             'name' => $this->name,
             'created_at' => $this->created_at,
             'desk_list_id' => $this->desk_list_id,
-];
+        ];
     }
 }

@@ -84,3 +84,17 @@ h4.card-title {
         margin: 0 5px;
     }
 }
+
+.edit-card-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    margin-left: 6px;
+    cursor: pointer;
+    transition: .2s;
+
+    &:hover {
+        opacity: .5;
+    }
+}

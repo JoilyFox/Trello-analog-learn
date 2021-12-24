@@ -35,7 +35,7 @@
                               Max number of characters is {{$v.name.$params.maxLength.max}}!
                           </div>
                       </div>
-                      <div class="col-md-3 mb-3 pl-0">
+                      <div class="col-md-6 mb-3 pl-0">
                           <button class="btn btn-primary mr-8" type="submit">Create new desk</button>
                           <button class="btn btn-danger" @click="hideCreateDeskForm">Cancel</button>
                       </div>
