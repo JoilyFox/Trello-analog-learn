@@ -5252,11 +5252,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({});
 
 /***/ }),
@@ -5666,6 +5661,84 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['deskId'],
@@ -5675,19 +5748,91 @@ __webpack_require__.r(__webpack_exports__);
       desk_list_name: null,
       errored: false,
       loading: true,
-      desk_lists: true,
+      desk_lists: [],
       createDeskListForm: false,
       errors: [],
       changeDeskNameForm: false,
       desk_list_input_id: null,
       card_names: [],
       current_card: [],
-      show_card_name_input: false
+      show_card_name_input: false,
+      createTaskForm: false,
+      new_task_name: '',
+      task_input_name_id: null,
+      tasks: []
     };
   },
   methods: {
-    updateCardName: function updateCardName() {
+    changeTaskName: function changeTaskName(task) {
       var _this = this;
+
+      axios.post('/api/v1/tasks/' + task.id, {
+        _method: 'PATCH',
+        name: task.name,
+        is_done: task.is_done,
+        card_id: task.card_id
+      }).then(function (response) {
+        _this.$v.$reset();
+
+        _this.task_input_name_id = null;
+
+        _this.getDeskLists();
+      })["catch"](function (error) {
+        console.log(error.response);
+        _this.errored = true;
+      })["finally"](function () {
+        _this.loading = false;
+      });
+    },
+    deleteTask: function deleteTask(id) {
+      var _this2 = this;
+
+      if (confirm('Are you sure you want to delete this task?')) {
+        axios.post('/api/v1/tasks/' + id, {
+          _method: 'DELETE'
+        }).then(function (response) {
+          _this2.$v.$reset();
+
+          _this2.getCard(_this2.current_card.id);
+        })["catch"](function (error) {
+          console.log(error.response);
+          _this2.errored = true;
+        })["finally"](function () {
+          _this2.loading = false;
+        });
+      }
+    },
+    addNewTask: function addNewTask(desk_list_id) {
+      var _this3 = this;
+
+      this.$v.new_task_name.$touch();
+
+      if (this.$v.new_task_name.$anyError) {
+        return;
+      }
+
+      axios.post('/api/v1/tasks/', {
+        name: this.new_task_name,
+        card_id: this.current_card.id
+      }).then(function (response) {
+        _this3.$v.$reset();
+
+        _this3.new_task_name = '';
+
+        _this3.getCard(_this3.current_card.id);
+      })["catch"](function (error) {
+        console.log(error);
+        _this3.errored = true;
+      })["finally"](function () {
+        _this3.loading = false;
+      });
+    },
+    hide_edit_card_name: function hide_edit_card_name(card_id) {
+      this.show_card_name_input = false;
+      this.getCard(card_id);
+    },
+    updateCardName: function updateCardName() {
+      var _this4 = this;
 
       this.$v.current_card.name.$touch();
 
@@ -5700,47 +5845,55 @@ __webpack_require__.r(__webpack_exports__);
         name: this.current_card.name,
         desk_list_id: this.current_card.desk_list_id
       }).then(function (response) {
-        _this.show_card_name_input = false;
+        _this4.show_card_name_input = false;
 
-        _this.getDeskLists();
+        _this4.getDeskLists();
       })["catch"](function (error) {
         console.log(error);
-        _this.errored = true;
+        _this4.errored = true;
       })["finally"](function () {
-        _this.loading = false;
+        _this4.loading = false;
       });
     },
     getCard: function getCard(id) {
-      var _this2 = this;
+      var _this5 = this;
 
       axios.get('/api/v1/cards/' + id).then(function (response) {
-        _this2.current_card = response.data.data;
-        console.log(_this2.current_card);
+        _this5.current_card = response.data.data;
+        _this5.tasks = [];
+
+        _this5.current_card.tasks.forEach(function (el) {
+          _this5.tasks[el.id] = '';
+        });
+
+        console.log(_this5.tasks);
       })["catch"](function (error) {
         console.log(error);
-        _this2.errored = true;
+        _this5.errored = true;
       })["finally"](function () {
-        _this2.loading = false;
+        _this5.loading = false;
       });
     },
     deleteCard: function deleteCard(id) {
-      var _this3 = this;
+      var _this6 = this;
 
       if (confirm('Are you sure you want to delete this card?')) {
         axios.post('/api/v1/cards/' + id, {
           _method: 'DELETE'
         }).then(function (response) {
-          _this3.getDeskLists();
+          _this6.$v.$reset();
+
+          _this6.getDeskLists();
         })["catch"](function (error) {
           console.log(error);
-          _this3.errored = true;
+          _this6.errored = true;
         })["finally"](function () {
-          _this3.loading = false;
+          _this6.loading = false;
         });
       }
     },
     addNewCard: function addNewCard(desk_list_id) {
-      var _this4 = this;
+      var _this7 = this;
 
       this.$v.card_names.$each[desk_list_id].$touch();
 
@@ -5752,53 +5905,59 @@ __webpack_require__.r(__webpack_exports__);
         name: this.card_names[desk_list_id],
         desk_list_id: desk_list_id
       }).then(function (response) {
-        _this4.$v.$reset();
+        _this7.$v.$reset();
 
-        _this4.getDeskLists();
+        _this7.getDeskLists();
       })["catch"](function (error) {
         console.log(error);
-        _this4.errored = true;
+        _this7.errored = true;
       })["finally"](function () {
-        _this4.loading = false;
+        _this7.loading = false;
       });
     },
     updateDesklist: function updateDesklist(id, name) {
-      var _this5 = this;
+      var _this8 = this;
+
+      this.$v.desk_lists.$touch();
+
+      if (this.$v.desk_lists.$anyError) {
+        return;
+      }
 
       axios.post('/api/v1/desk-lists/' + id, {
         _method: 'PUT',
         name: name
       }).then(function (response) {
-        _this5.desk_list_input_id = null;
+        _this8.desk_list_input_id = null;
       })["catch"](function (error) {
         console.log(error);
-        _this5.errored = true;
+        _this8.errored = true;
       })["finally"](function () {
-        _this5.loading = false;
+        _this8.loading = false;
       });
     },
     getDeskLists: function getDeskLists() {
-      var _this6 = this;
+      var _this9 = this;
 
       axios.get('/api/v1/desk-lists', {
         params: {
           desk_id: this.deskId
         }
       }).then(function (response) {
-        _this6.desk_lists = response.data.data;
+        _this9.desk_lists = response.data.data;
 
-        _this6.desk_lists.forEach(function (el) {
-          _this6.card_names[el.id] = '';
+        _this9.desk_lists.forEach(function (el) {
+          _this9.card_names[el.id] = '';
         });
       })["catch"](function (error) {
-        console.log(error.response);
-        _this6.errored = true;
+        console.log(error);
+        _this9.errored = true;
       })["finally"](function () {
-        _this6.loading = false;
+        _this9.loading = false;
       });
     },
     saveName: function saveName() {
-      var _this7 = this;
+      var _this10 = this;
 
       this.$v.name.$touch();
 
@@ -5810,16 +5969,16 @@ __webpack_require__.r(__webpack_exports__);
         _method: 'PUT',
         name: this.name
       }).then(function (response) {
-        _this7.changeDeskNameForm = false;
+        _this10.changeDeskNameForm = false;
       })["catch"](function (error) {
         console.log(error);
-        _this7.errored = true;
+        _this10.errored = true;
       })["finally"](function () {
-        _this7.loading = false;
+        _this10.loading = false;
       });
     },
     addNewDeskList: function addNewDeskList() {
-      var _this8 = this;
+      var _this11 = this;
 
       this.$v.desk_list_name.$touch();
 
@@ -5831,48 +5990,38 @@ __webpack_require__.r(__webpack_exports__);
         name: this.desk_list_name,
         desk_id: this.deskId
       }).then(function (response) {
-        _this8.createDeskListForm = false;
-        _this8.desk_list_name = '';
-        _this8.desk_lists = [];
+        _this11.createDeskListForm = false;
+        _this11.desk_list_name = '';
+        _this11.desk_lists = [];
 
-        _this8.getDeskLists();
+        _this11.getDeskLists();
       })["catch"](function (error) {
         console.log(error.response);
-        _this8.errored = true;
+        _this11.errored = true;
       })["finally"](function () {
-        _this8.loading = false;
+        _this11.loading = false;
       });
     },
     deleteDeskList: function deleteDeskList(id) {
-      var _this9 = this;
+      var _this12 = this;
 
       if (confirm('Are you sure you want to delete the desk list?')) {
         axios.post('/api/v1/desk-lists/' + id, {
           _method: 'DELETE'
         }).then(function (response) {
-          _this9.desk_lists = [];
+          _this12.desk_lists = [];
 
-          _this9.getDeskLists();
+          _this12.getDeskLists();
         })["catch"](function (error) {
           console.log(error);
-          _this9.errored = true;
+          _this12.errored = true;
         })["finally"](function () {
-          _this9.loading = false;
+          _this12.loading = false;
         });
       }
     }
   },
   mounted: function mounted() {
-    var _this10 = this;
-
-    axios.get('/api/v1/desks/' + this.deskId).then(function (response) {
-      _this10.name = response.data.data.name;
-    })["catch"](function (error) {
-      console.log(error);
-      _this10.errored = true;
-    })["finally"](function () {
-      _this10.loading = false;
-    });
     this.getDeskLists();
   },
   validations: {
@@ -5895,6 +6044,18 @@ __webpack_require__.r(__webpack_exports__);
         required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.required,
         maxLength: (0,vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.maxLength)(255)
       }
+    },
+    desk_lists: {
+      $each: {
+        name: {
+          required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.required,
+          maxLength: (0,vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.maxLength)(255)
+        }
+      }
+    },
+    new_task_name: {
+      required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.required,
+      maxLength: (0,vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__.maxLength)(255)
     }
   }
 });
@@ -42281,22 +42442,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "container" }, [
-      _c("h1", [_vm._v("Home")]),
-      _vm._v(" "),
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-primary",
-          attrs: {
-            type: "button",
-            "data-bs-toggle": "modal",
-            "data-bs-target": "#staticBackdrop",
-          },
-        },
-        [_vm._v("\n        Launch static backdrop modal\n    ")]
-      ),
-    ])
+    return _c("div", { staticClass: "container" }, [_c("h1", [_vm._v("Home")])])
   },
 ]
 render._withStripped = true
@@ -42908,7 +43054,7 @@ var render = function () {
     _c(
       "div",
       { staticClass: "row" },
-      _vm._l(_vm.desk_lists, function (desk_list) {
+      _vm._l(_vm.desk_lists, function (desk_list, index) {
         return _c("div", { staticClass: "col-lg-4" }, [
           _c("div", { staticClass: "card mt-3" }, [
             _c(
@@ -42934,43 +43080,85 @@ var render = function () {
                         },
                       },
                       [
-                        _c("div", { staticClass: "desk-list-edit-form" }, [
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: desk_list.name,
-                                expression: "desk_list.name",
+                        _c("div", { staticClass: "desk-list-edit-form mt-3" }, [
+                          _c("div", { staticClass: "d-flex flex-md-column" }, [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: desk_list.name,
+                                  expression: "desk_list.name",
+                                },
+                              ],
+                              staticClass: "form-control",
+                              class: {
+                                "is-invalid":
+                                  _vm.$v.desk_lists.$each[index].name.$error,
                               },
-                            ],
-                            staticClass: "form-control mt-3",
-                            attrs: { type: "text" },
-                            domProps: { value: desk_list.name },
-                            on: {
-                              input: function ($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(desk_list, "name", $event.target.value)
-                              },
-                            },
-                          }),
-                          _vm._v(" "),
-                          _vm._m(0, true),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
-                              staticClass: "btn btn-danger",
-                              attrs: { type: "button" },
+                              attrs: { type: "text" },
+                              domProps: { value: desk_list.name },
                               on: {
-                                click: function ($event) {
-                                  _vm.desk_list_input_id = null
+                                input: function ($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.$set(
+                                    desk_list,
+                                    "name",
+                                    $event.target.value
+                                  )
                                 },
                               },
-                            },
-                            [_c("i", { staticClass: "fas fa-times-circle" })]
+                            }),
+                            _vm._v(" "),
+                            !_vm.$v.desk_lists.$each[index].name.required
+                              ? _c("div", { staticClass: "invalid-feedback" }, [
+                                  _vm._v(
+                                    "\n                                        Obligatory field!\n                                    "
+                                  ),
+                                ])
+                              : _vm._e(),
+                            _vm._v(" "),
+                            !_vm.$v.desk_lists.$each[index].name.maxLength
+                              ? _c("div", { staticClass: "invalid-feedback" }, [
+                                  _vm._v(
+                                    "\n                                        Max number of characters is " +
+                                      _vm._s(
+                                        _vm.$v.desk_lists.$each[index].name
+                                          .$params.maxLength.max
+                                      ) +
+                                      "!\n                                    "
+                                  ),
+                                ])
+                              : _vm._e(),
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "d-flex pl-0 align-self-start" },
+                            [
+                              _vm._m(0, true),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-danger",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function ($event) {
+                                      ;(_vm.desk_list_input_id = null),
+                                        _vm.getDeskLists()
+                                    },
+                                  },
+                                },
+                                [
+                                  _c("i", {
+                                    staticClass: "fas fa-times-circle",
+                                  }),
+                                ]
+                              ),
+                            ]
                           ),
                         ]),
                       ]
@@ -43291,7 +43479,9 @@ var render = function () {
                                                                     function (
                                                                       $event
                                                                     ) {
-                                                                      _vm.show_card_name_input = false
+                                                                      return _vm.hide_edit_card_name(
+                                                                        card.id
+                                                                      )
                                                                     },
                                                                 },
                                                               },
@@ -43316,14 +43506,634 @@ var render = function () {
                                         "data-bs-dismiss": "modal",
                                         "aria-label": "Close",
                                       },
+                                      on: {
+                                        click: function ($event) {
+                                          ;(_vm.show_card_name_input = false),
+                                            (_vm.createTaskForm = false),
+                                            (_vm.task_input_name_id = null)
+                                        },
+                                      },
                                     }),
                                   ]),
                                   _vm._v(" "),
-                                  _c("div", { staticClass: "modal-body" }, [
-                                    _vm._v(
-                                      "\n                                                ...\n                                            "
-                                    ),
-                                  ]),
+                                  _c(
+                                    "div",
+                                    { staticClass: "modal-body" },
+                                    [
+                                      !_vm.createTaskForm
+                                        ? _c(
+                                            "button",
+                                            {
+                                              staticClass:
+                                                "btn btn-primary mb-2",
+                                              attrs: { type: "button" },
+                                              on: {
+                                                click: function ($event) {
+                                                  _vm.createTaskForm = true
+                                                },
+                                              },
+                                            },
+                                            [
+                                              _c(
+                                                "svg",
+                                                {
+                                                  staticClass: "bi bi-plus-lg",
+                                                  attrs: {
+                                                    xmlns:
+                                                      "http://www.w3.org/2000/svg",
+                                                    width: "16",
+                                                    height: "16",
+                                                    fill: "currentColor",
+                                                    viewBox: "0 0 16 16",
+                                                  },
+                                                },
+                                                [
+                                                  _c("path", {
+                                                    attrs: {
+                                                      "fill-rule": "evenodd",
+                                                      d: "M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z",
+                                                    },
+                                                  }),
+                                                ]
+                                              ),
+                                              _vm._v(
+                                                "\n                                                    Create new task\n                                                "
+                                              ),
+                                            ]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      _vm.createTaskForm
+                                        ? _c(
+                                            "form",
+                                            {
+                                              on: {
+                                                submit: function ($event) {
+                                                  $event.preventDefault()
+                                                  return _vm.addNewTask.apply(
+                                                    null,
+                                                    arguments
+                                                  )
+                                                },
+                                              },
+                                            },
+                                            [
+                                              _c(
+                                                "div",
+                                                { staticClass: "form-row row" },
+                                                [
+                                                  _c(
+                                                    "div",
+                                                    {
+                                                      staticClass: "col-md-12",
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "label",
+                                                        {
+                                                          attrs: {
+                                                            for: "validationServer03",
+                                                          },
+                                                        },
+                                                        [_vm._v("Name")]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "div",
+                                                        { staticClass: "row" },
+                                                        [
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "col-md-6 mb-2",
+                                                            },
+                                                            [
+                                                              _c("input", {
+                                                                directives: [
+                                                                  {
+                                                                    name: "model",
+                                                                    rawName:
+                                                                      "v-model",
+                                                                    value:
+                                                                      _vm.new_task_name,
+                                                                    expression:
+                                                                      "new_task_name",
+                                                                  },
+                                                                ],
+                                                                staticClass:
+                                                                  "form-control",
+                                                                class: {
+                                                                  "is-invalid":
+                                                                    _vm.$v
+                                                                      .new_task_name
+                                                                      .$error,
+                                                                },
+                                                                attrs: {
+                                                                  type: "text",
+                                                                  placeholder:
+                                                                    "Create new task",
+                                                                  id: "validationServer03",
+                                                                },
+                                                                domProps: {
+                                                                  value:
+                                                                    _vm.new_task_name,
+                                                                },
+                                                                on: {
+                                                                  input:
+                                                                    function (
+                                                                      $event
+                                                                    ) {
+                                                                      if (
+                                                                        $event
+                                                                          .target
+                                                                          .composing
+                                                                      ) {
+                                                                        return
+                                                                      }
+                                                                      _vm.new_task_name =
+                                                                        $event.target.value
+                                                                    },
+                                                                },
+                                                              }),
+                                                              _vm._v(" "),
+                                                              !_vm.$v
+                                                                .new_task_name
+                                                                .required
+                                                                ? _c(
+                                                                    "div",
+                                                                    {
+                                                                      staticClass:
+                                                                        "invalid-feedback",
+                                                                    },
+                                                                    [
+                                                                      _vm._v(
+                                                                        "\n                                                                        Obligatory field!\n                                                                    "
+                                                                      ),
+                                                                    ]
+                                                                  )
+                                                                : _vm._e(),
+                                                              _vm._v(" "),
+                                                              !_vm.$v
+                                                                .new_task_name
+                                                                .maxLength
+                                                                ? _c(
+                                                                    "div",
+                                                                    {
+                                                                      staticClass:
+                                                                        "invalid-feedback",
+                                                                    },
+                                                                    [
+                                                                      _vm._v(
+                                                                        "\n                                                                        Max number of characters is " +
+                                                                          _vm._s(
+                                                                            _vm
+                                                                              .$v
+                                                                              .new_task_name
+                                                                              .$params
+                                                                              .maxLength
+                                                                              .max
+                                                                          ) +
+                                                                          "!\n                                                                    "
+                                                                      ),
+                                                                    ]
+                                                                  )
+                                                                : _vm._e(),
+                                                            ]
+                                                          ),
+                                                          _vm._v(" "),
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "col-md-6 mb-3 pl-0",
+                                                            },
+                                                            [
+                                                              _c(
+                                                                "button",
+                                                                {
+                                                                  staticClass:
+                                                                    "btn btn-primary mr-8",
+                                                                  attrs: {
+                                                                    type: "submit",
+                                                                  },
+                                                                },
+                                                                [
+                                                                  _vm._v(
+                                                                    "Create new task"
+                                                                  ),
+                                                                ]
+                                                              ),
+                                                              _vm._v(" "),
+                                                              _c(
+                                                                "button",
+                                                                {
+                                                                  staticClass:
+                                                                    "btn btn-danger",
+                                                                  on: {
+                                                                    click:
+                                                                      function (
+                                                                        $event
+                                                                      ) {
+                                                                        _vm.createTaskForm = false
+                                                                      },
+                                                                  },
+                                                                },
+                                                                [
+                                                                  _vm._v(
+                                                                    "Cancel"
+                                                                  ),
+                                                                ]
+                                                              ),
+                                                            ]
+                                                          ),
+                                                        ]
+                                                      ),
+                                                    ]
+                                                  ),
+                                                ]
+                                              ),
+                                            ]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      _vm._l(
+                                        _vm.current_card.tasks,
+                                        function (task, index) {
+                                          return _c(
+                                            "div",
+                                            { staticClass: "form-check" },
+                                            [
+                                              _c(
+                                                "div",
+                                                {
+                                                  staticClass: "d-inline-flex",
+                                                },
+                                                [
+                                                  _vm.task_input_name_id ==
+                                                  task.id
+                                                    ? _c(
+                                                        "form",
+                                                        {
+                                                          on: {
+                                                            submit: function (
+                                                              $event
+                                                            ) {
+                                                              $event.preventDefault()
+                                                              return _vm.changeTaskName(
+                                                                task
+                                                              )
+                                                            },
+                                                          },
+                                                        },
+                                                        [
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "form-row row",
+                                                            },
+                                                            [
+                                                              _c(
+                                                                "div",
+                                                                {
+                                                                  staticClass:
+                                                                    "col-md-12",
+                                                                },
+                                                                [
+                                                                  _c(
+                                                                    "label",
+                                                                    {
+                                                                      attrs: {
+                                                                        for: "validationServer03",
+                                                                      },
+                                                                    },
+                                                                    [
+                                                                      _vm._v(
+                                                                        "Task name"
+                                                                      ),
+                                                                    ]
+                                                                  ),
+                                                                  _vm._v(" "),
+                                                                  _c(
+                                                                    "div",
+                                                                    {
+                                                                      staticClass:
+                                                                        "row",
+                                                                    },
+                                                                    [
+                                                                      _c(
+                                                                        "div",
+                                                                        {
+                                                                          staticClass:
+                                                                            "col-md-6 mb-2",
+                                                                        },
+                                                                        [
+                                                                          _c(
+                                                                            "input",
+                                                                            {
+                                                                              directives:
+                                                                                [
+                                                                                  {
+                                                                                    name: "model",
+                                                                                    rawName:
+                                                                                      "v-model",
+                                                                                    value:
+                                                                                      task.name,
+                                                                                    expression:
+                                                                                      "task.name",
+                                                                                  },
+                                                                                ],
+                                                                              staticClass:
+                                                                                "form-control",
+                                                                              attrs:
+                                                                                {
+                                                                                  type: "text",
+                                                                                  id: "validationServer03",
+                                                                                },
+                                                                              domProps:
+                                                                                {
+                                                                                  value:
+                                                                                    task.name,
+                                                                                },
+                                                                              on: {
+                                                                                input:
+                                                                                  function (
+                                                                                    $event
+                                                                                  ) {
+                                                                                    if (
+                                                                                      $event
+                                                                                        .target
+                                                                                        .composing
+                                                                                    ) {
+                                                                                      return
+                                                                                    }
+                                                                                    _vm.$set(
+                                                                                      task,
+                                                                                      "name",
+                                                                                      $event
+                                                                                        .target
+                                                                                        .value
+                                                                                    )
+                                                                                  },
+                                                                              },
+                                                                            }
+                                                                          ),
+                                                                        ]
+                                                                      ),
+                                                                      _vm._v(
+                                                                        " "
+                                                                      ),
+                                                                      _c(
+                                                                        "div",
+                                                                        {
+                                                                          staticClass:
+                                                                            "col-md-6 mb-3 pl-0",
+                                                                        },
+                                                                        [
+                                                                          _c(
+                                                                            "button",
+                                                                            {
+                                                                              staticClass:
+                                                                                "btn btn-primary mr-8",
+                                                                              attrs:
+                                                                                {
+                                                                                  type: "submit",
+                                                                                },
+                                                                            },
+                                                                            [
+                                                                              _vm._v(
+                                                                                "Change name"
+                                                                              ),
+                                                                            ]
+                                                                          ),
+                                                                          _vm._v(
+                                                                            " "
+                                                                          ),
+                                                                          _c(
+                                                                            "button",
+                                                                            {
+                                                                              staticClass:
+                                                                                "btn btn-danger",
+                                                                              on: {
+                                                                                click:
+                                                                                  function (
+                                                                                    $event
+                                                                                  ) {
+                                                                                    _vm.task_input_name_id =
+                                                                                      null
+                                                                                  },
+                                                                              },
+                                                                            },
+                                                                            [
+                                                                              _vm._v(
+                                                                                "Cancel"
+                                                                              ),
+                                                                            ]
+                                                                          ),
+                                                                        ]
+                                                                      ),
+                                                                    ]
+                                                                  ),
+                                                                ]
+                                                              ),
+                                                            ]
+                                                          ),
+                                                        ]
+                                                      )
+                                                    : _c(
+                                                        "div",
+                                                        {
+                                                          staticClass:
+                                                            "d-inline-block",
+                                                        },
+                                                        [
+                                                          _c("input", {
+                                                            directives: [
+                                                              {
+                                                                name: "model",
+                                                                rawName:
+                                                                  "v-model",
+                                                                value:
+                                                                  task.is_done,
+                                                                expression:
+                                                                  "task.is_done",
+                                                              },
+                                                            ],
+                                                            staticClass:
+                                                              "form-check-input",
+                                                            attrs: {
+                                                              type: "checkbox",
+                                                              id: task.id,
+                                                              value: "option1",
+                                                            },
+                                                            domProps: {
+                                                              checked:
+                                                                Array.isArray(
+                                                                  task.is_done
+                                                                )
+                                                                  ? _vm._i(
+                                                                      task.is_done,
+                                                                      "option1"
+                                                                    ) > -1
+                                                                  : task.is_done,
+                                                            },
+                                                            on: {
+                                                              change: [
+                                                                function (
+                                                                  $event
+                                                                ) {
+                                                                  var $$a =
+                                                                      task.is_done,
+                                                                    $$el =
+                                                                      $event.target,
+                                                                    $$c =
+                                                                      $$el.checked
+                                                                        ? true
+                                                                        : false
+                                                                  if (
+                                                                    Array.isArray(
+                                                                      $$a
+                                                                    )
+                                                                  ) {
+                                                                    var $$v =
+                                                                        "option1",
+                                                                      $$i =
+                                                                        _vm._i(
+                                                                          $$a,
+                                                                          $$v
+                                                                        )
+                                                                    if (
+                                                                      $$el.checked
+                                                                    ) {
+                                                                      $$i < 0 &&
+                                                                        _vm.$set(
+                                                                          task,
+                                                                          "is_done",
+                                                                          $$a.concat(
+                                                                            [
+                                                                              $$v,
+                                                                            ]
+                                                                          )
+                                                                        )
+                                                                    } else {
+                                                                      $$i >
+                                                                        -1 &&
+                                                                        _vm.$set(
+                                                                          task,
+                                                                          "is_done",
+                                                                          $$a
+                                                                            .slice(
+                                                                              0,
+                                                                              $$i
+                                                                            )
+                                                                            .concat(
+                                                                              $$a.slice(
+                                                                                $$i +
+                                                                                  1
+                                                                              )
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                  } else {
+                                                                    _vm.$set(
+                                                                      task,
+                                                                      "is_done",
+                                                                      $$c
+                                                                    )
+                                                                  }
+                                                                },
+                                                                function (
+                                                                  $event
+                                                                ) {
+                                                                  return _vm.changeTaskName(
+                                                                    task
+                                                                  )
+                                                                },
+                                                              ],
+                                                            },
+                                                          }),
+                                                          _vm._v(" "),
+                                                          _c(
+                                                            "label",
+                                                            {
+                                                              staticClass:
+                                                                "form-check-label",
+                                                              attrs: {
+                                                                for: task.id,
+                                                              },
+                                                            },
+                                                            [
+                                                              _vm._v(
+                                                                _vm._s(
+                                                                  task.name
+                                                                )
+                                                              ),
+                                                            ]
+                                                          ),
+                                                          _vm._v(" "),
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "btns d-inline-block",
+                                                            },
+                                                            [
+                                                              _c(
+                                                                "span",
+                                                                {
+                                                                  on: {
+                                                                    click:
+                                                                      function (
+                                                                        $event
+                                                                      ) {
+                                                                        _vm.task_input_name_id =
+                                                                          task.id
+                                                                      },
+                                                                  },
+                                                                },
+                                                                [
+                                                                  _c("i", {
+                                                                    staticClass:
+                                                                      "fas fa-pen task-btn",
+                                                                  }),
+                                                                ]
+                                                              ),
+                                                              _vm._v(" "),
+                                                              _c(
+                                                                "span",
+                                                                {
+                                                                  on: {
+                                                                    click:
+                                                                      function (
+                                                                        $event
+                                                                      ) {
+                                                                        return _vm.deleteTask(
+                                                                          task.id
+                                                                        )
+                                                                      },
+                                                                  },
+                                                                },
+                                                                [
+                                                                  _c("i", {
+                                                                    staticClass:
+                                                                      "fas fa-trash task-btn",
+                                                                  }),
+                                                                ]
+                                                              ),
+                                                            ]
+                                                          ),
+                                                        ]
+                                                      ),
+                                                ]
+                                              ),
+                                            ]
+                                          )
+                                        }
+                                      ),
+                                    ],
+                                    2
+                                  ),
                                   _vm._v(" "),
                                   _c("div", { staticClass: "modal-footer" }, [
                                     _c(
@@ -43336,7 +44146,9 @@ var render = function () {
                                         },
                                         on: {
                                           click: function ($event) {
-                                            _vm.show_card_name_input = false
+                                            ;(_vm.show_card_name_input = false),
+                                              (_vm.createTaskForm = false),
+                                              (_vm.task_input_name_id = null)
                                           },
                                         },
                                       },

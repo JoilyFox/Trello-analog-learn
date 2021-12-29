@@ -5,6 +5,7 @@
             Data loading error! <br>
             {{errors[0]}}
         </div>
+
 <!--        Title-->
         <h1>{{name}}</h1>
 <!--      Btns-->
@@ -71,22 +72,32 @@
             <div class="spinner-grow text-primary" role="status">
             </div>
         </div>
-<!--        List cards-->
+<!--        Desk Lists-->
         <div class="row">
-            <div class="col-lg-4" v-for="desk_list in desk_lists">
+            <div class="col-lg-4" v-for="(desk_list, index) in desk_lists">
                 <div class="card mt-3">
 <!--                    Card name-->
                     <div class="card-body">
                         <h4 class="card-title">{{ desk_list.name }}</h4>
-                        <form @submit.prevent="updateDesklist(desk_list.id, desk_list.name)" v-if="desk_list_input_id == desk_list.id" >
-                            <div class="desk-list-edit-form">
-                                <input type="text" v-model="desk_list.name" class="form-control mt-3">
-                                <button type="submit" class="btn btn-primary" >
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger" @click="desk_list_input_id = null">
-                                    <i class="fas fa-times-circle"></i>
-                                </button>
+                        <form @submit.prevent="updateDesklist(desk_list.id, desk_list.name)" v-if="desk_list_input_id == desk_list.id">
+                            <div class="desk-list-edit-form mt-3">
+                                <div class="d-flex flex-md-column">
+                                    <input type="text" v-model="desk_list.name" class="form-control" :class="{ 'is-invalid': $v.desk_lists.$each[index].name.$error }">
+                                    <div class="invalid-feedback" v-if="!$v.desk_lists.$each[index].name.required">
+                                        Obligatory field!
+                                    </div>
+                                    <div class="invalid-feedback" v-if="!$v.desk_lists.$each[index].name.maxLength">
+                                        Max number of characters is {{ $v.desk_lists.$each[index].name.$params.maxLength.max }}!
+                                    </div>
+                                </div>
+                                <div class="d-flex pl-0 align-self-start">
+                                    <button type="submit" class="btn btn-primary" >
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger" @click="desk_list_input_id = null, getDeskLists()">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </div>
                             </div>
                         </form>
 <!--                        Buttons-->
@@ -139,20 +150,87 @@
                                                                 </div>
                                                                 <div class="col-md-6 mb-3 pl-0">
                                                                     <button class="btn btn-primary mr-8" type="submit">Change name</button>
-                                                                    <button class="btn btn-danger" @click="show_card_name_input = false">Cancel</button>
+                                                                    <button class="btn btn-danger" @click="hide_edit_card_name(card.id)">Cancel</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </form>
 <!--                                                // Edit card name-->
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <button @click="show_card_name_input = false, createTaskForm = false, task_input_name_id = null" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
+<!--                                            Body-->
                                             <div class="modal-body">
-                                                ...
+                                                <button type="button" class="btn btn-primary mb-2" @click="createTaskForm = true" v-if="!createTaskForm">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"></path>
+                                                    </svg>
+                                                    Create new task
+                                                </button>
+<!--                                                Create task form-->
+                                                <form @submit.prevent="addNewTask" v-if="createTaskForm">
+                                                    <div class="form-row row">
+                                                        <div class="col-md-12">
+                                                            <label for="validationServer03">Name</label>
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-2">
+                                                                    <input type="text" v-model="new_task_name" class="form-control" placeholder="Create new task" :class="{ 'is-invalid': $v.new_task_name.$error }" id="validationServer03">
+                                                                    <div class="invalid-feedback" v-if="!$v.new_task_name.required">
+                                                                        Obligatory field!
+                                                                    </div>
+                                                                    <div class="invalid-feedback" v-if="!$v.new_task_name.maxLength">
+                                                                        Max number of characters is {{$v.new_task_name.$params.maxLength.max}}!
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6 mb-3 pl-0">
+                                                                    <button class="btn btn-primary mr-8" type="submit">Create new task</button>
+                                                                    <button class="btn btn-danger" @click="createTaskForm = false">Cancel</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+
+
+                                                <div class="form-check" v-for="(task, index) in current_card.tasks">
+                                                    <div class="d-inline-flex">
+
+                                                        <form @submit.prevent="changeTaskName(task)" v-if="task_input_name_id == task.id">
+                                                            <div class="form-row row">
+                                                                <div class="col-md-12">
+                                                                    <label for="validationServer03">Task name</label>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-2">
+                                                                            <input type="text" v-model="task.name" class="form-control" id="validationServer03">
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3 pl-0">
+                                                                            <button class="btn btn-primary mr-8" type="submit">Change name</button>
+                                                                            <button class="btn btn-danger" @click="task_input_name_id = null">Cancel</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+
+                                                        <div class="d-inline-block" v-else>
+                                                            <input class="form-check-input" @change="changeTaskName(task)" v-model="task.is_done" type="checkbox" :id='task.id' value="option1">
+                                                            <label class="form-check-label" :for='task.id'>{{ task.name }}</label>
+                                                            <div class="btns d-inline-block">
+                                                            <span @click="task_input_name_id = task.id">
+                                                                <i class="fas fa-pen task-btn"></i>
+                                                            </span>
+                                                                <span @click="deleteTask(task.id)">
+                                                                <i class="fas fa-trash task-btn"></i>
+                                                            </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
                                             </div>
                                             <div class="modal-footer">
-                                                <button @click="show_card_name_input = false" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button @click="show_card_name_input = false, createTaskForm = false, task_input_name_id = null" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                             </div>
                                         </div>
                                     </div>
@@ -201,7 +279,7 @@ export default {
             desk_list_name: null,
             errored: false,
             loading: true,
-            desk_lists: true,
+            desk_lists: [],
             createDeskListForm: false,
             errors: [],
             changeDeskNameForm: false,
@@ -209,10 +287,78 @@ export default {
             card_names: [],
             current_card: [],
             show_card_name_input: false,
-
-    }
+            createTaskForm: false,
+            new_task_name: '',
+            task_input_name_id: null,
+            tasks: [],
+        }
     },
     methods: {
+        changeTaskName(task){
+            axios.post('/api/v1/tasks/' + task.id, {
+                _method: 'PATCH',
+                name: task.name,
+                is_done: task.is_done,
+                card_id: task.card_id,
+            })
+                .then(response => {
+                    this.$v.$reset()
+                    this.task_input_name_id = null
+                    this.getDeskLists()
+                })
+                .catch(error => {
+                    console.log(error.response)
+                    this.errored = true
+                })
+                .finally(() => {
+                    this.loading = false
+                })
+        },
+        deleteTask(id){
+            if (confirm('Are you sure you want to delete this task?')){
+                axios.post('/api/v1/tasks/' + id, {
+                    _method: 'DELETE'
+                })
+                    .then(response => {
+                        this.$v.$reset()
+                        this.getCard(this.current_card.id)
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.errored = true
+                    })
+                    .finally(() => {
+                        this.loading = false
+                    })
+
+            }
+        },
+        addNewTask(desk_list_id){
+            this.$v.new_task_name.$touch()
+            if(this.$v.new_task_name.$anyError){
+                return;
+            }
+            axios.post('/api/v1/tasks/', {
+                name: this.new_task_name,
+                card_id: this.current_card.id
+            })
+                .then(response => {
+                    this.$v.$reset()
+                    this.new_task_name = ''
+                    this.getCard(this.current_card.id)
+                })
+                .catch(error => {
+                    console.log(error)
+                    this.errored = true
+                })
+                .finally(() => {
+                    this.loading = false
+                })
+        },
+        hide_edit_card_name(card_id) {
+            this.show_card_name_input = false
+            this.getCard(card_id)
+        },
         updateCardName(){
             this.$v.current_card.name.$touch()
             if(this.$v.current_card.name.$anyError){
@@ -239,7 +385,11 @@ export default {
             axios.get('/api/v1/cards/'+id)
                 .then(response => {
                     this.current_card = response.data.data
-                    console.log(this.current_card)
+                    this.tasks = [];
+                    this.current_card.tasks.forEach(el => {
+                        this.tasks[el.id] = ''
+                    })
+                    console.log(this.tasks)
                 })
                 .catch(error => {
                     console.log(error)
@@ -255,6 +405,7 @@ export default {
                     _method: 'DELETE'
                 })
                     .then(response => {
+                        this.$v.$reset()
                         this.getDeskLists()
                     })
                     .catch(error => {
@@ -289,6 +440,10 @@ export default {
                 })
         },
         updateDesklist(id, name) {
+            this.$v.desk_lists.$touch()
+            if(this.$v.desk_lists.$anyError){
+                return;
+            }
             axios.post('/api/v1/desk-lists/'+id, {
                 _method: 'PUT',
                 name,
@@ -317,7 +472,7 @@ export default {
                     })
                 })
                 .catch(error => {
-                    console.log(error.response)
+                    console.log(error)
                     this.errored = true
                 })
                 .finally(() => {
@@ -391,17 +546,6 @@ export default {
         },
     },
     mounted() {
-        axios.get('/api/v1/desks/'+this.deskId)
-            .then(response => {
-                this.name = response.data.data.name
-            })
-            .catch(error => {
-                console.log(error)
-                this.errored = true
-            })
-            .finally(() => {
-                this.loading = false
-            })
         this.getDeskLists()
     },
     validations: {
@@ -425,6 +569,19 @@ export default {
                 maxLength: maxLength(255)
             }
         },
+        desk_lists: {
+            $each: {
+                name: {
+                    required,
+                    maxLength: maxLength(255)
+                }
+            }
+        },
+        new_task_name: {
+            required,
+            maxLength: maxLength(255)
+        },
+
     }
 }
 </script>

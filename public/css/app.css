@@ -11365,7 +11365,24 @@ h4.card-title, .card-title.h4 {
   margin-left: 6px;
   cursor: pointer;
   transition: 0.2s;
+  opacity: 0.5;
 }
 .edit-card-btn:hover {
-  opacity: 0.5;
+  opacity: 1;
+}
+
+.task-btn {
+  opacity: 0.3;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: 0.2s;
+}
+.task-btn:hover {
+  opacity: 0.6;
+}
+.task-btn.fa-trash {
+  width: 12px;
+}
+.task-btn.fa-pen {
+  width: 13.5px;
 }

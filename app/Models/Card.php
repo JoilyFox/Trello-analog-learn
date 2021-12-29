@@ -11,4 +11,8 @@ class Card extends Model
 
     protected $fillable = ['name', 'desk_list_id'];
 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }
